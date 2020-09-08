@@ -1,0 +1,35 @@
+version: "3.1"
+
+volumes:
+  mongodbdata:
+
+services:
+  mongo:
+    image: mongo:4.2
+    restart: always
+    volumes:
+        - ./database_init.js:/docker-entrypoint-initdb.d/database_init.js:ro
+        - mongodbdata:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: $DATABASE
+      MONGO_INITDB_ROOT_USERNAME: $ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $ROOT_PASSWORD
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    depends_on: 
+      - mongo
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: $ADMINUSERNAME
+      ME_CONFIG_MONGODB_ADMINPASSWORD: $ADMINPASSWORD
+
+networks:
+  default:
+    external:
+      name: sandbox_network
+
